@@ -35,11 +35,20 @@ foreach (file($argv[1]) as $line) {
 	$song = escape($thing[0]);
 	$song = trim($song);
 	$song = substr($song, 0, 31);
+	$song = preg_replace("/\\\s?$/", "", $song);
+
+	//  a different version of the text to try
+	$song2 = preg_replace("/Feat\./", "Feat_", $song);
+	$song2 = preg_replace("/,/", "_", $song);
+
 	$artist = $thing[2];
 	$output = exec("find $src -name \"*$song*\"");
 	if (strlen($output) == 0) {
-		print "NO MATCH for $song - $artist!\n";
-		exit;
+		$output = exec("find $src -name \"*$song2*\"");
+		if (strlen($output) == 0) {
+			print "NO MATCH for $song - $artist!\n";
+			exit;
+		}
 	}
 	if (preg_match("/\n/", $output)) {
 		print "MORE THAN one match for $song - $artist!\n";
