@@ -26,6 +26,8 @@ $dest = $argv[3];
 $src = $argv[2];
 	
 foreach (file($argv[1]) as $line) {
+	$output = array();
+	$winner = null;
 	$count++;
 	$thing = explode("\t", $line);
 	if (count($thing) < 2) {
@@ -42,19 +44,28 @@ foreach (file($argv[1]) as $line) {
 	$song2 = preg_replace("/,/", "_", $song);
 
 	$artist = $thing[2];
-	$output = exec("find $src -name \"*$song*\"");
-	if (strlen($output) == 0) {
+	exec("find $src -name \"*$song*\"", $output);
+	if (count($output) == 0) {
 		$output = exec("find $src -name \"*$song2*\"");
 		if (strlen($output) == 0) {
 			print "NO MATCH for $song - $artist!\n";
 			exit;
 		}
 	}
-	if (preg_match("/\n/", $output)) {
-		print "MORE THAN one match for $song - $artist!\n";
-		exit;
+
+	// narrow results down by artist
+	foreach ($output as $canidate) {
+		if (preg_match("/$artist/i", $canidate)) {
+			$winner = $canidate;
+		}
 	}
-	$info = pathinfo($output);
+
+	if ((!isset($winner)) && (count($output) > 1)) {
+		print "MORE THAN one match for $song - $artist!\n";
+		var_dump($output);
+		continue;
+	}
+	$info = pathinfo($output[0]);
 	if (!count($info) || empty($info['filename'])) {
 		print "Failed to get info about file $output\n";
 		exit;
@@ -64,7 +75,7 @@ foreach (file($argv[1]) as $line) {
 		print "$filename exists, skipping...\n";
 	} else {
 		print "copying $filename to $dest/$filename...\n";
-		copy($output, "$dest/$filename");
+		copy("$output", "$dest/$filename");
 	}
 	//print "($filename) - $output\n";
 	//print $line . "\n";
