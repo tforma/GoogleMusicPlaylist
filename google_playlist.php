@@ -60,14 +60,26 @@ foreach (file($argv[1]) as $line) {
 		}
 	}
 
-	if ((!isset($winner)) && (count($output) > 1)) {
-		print "MORE THAN one match for $song - $artist!\n";
-		var_dump($output);
-		continue;
+	if (!isset($winner)) {
+		if (count($output) > 1) {
+			print "MORE THAN one match for $song - $artist!\n";
+			var_dump($output);
+			continue;
+		} elseif (count($output) == 1) {
+			$winner = $output[0];
+		}
 	}
-	$info = pathinfo($output[0]);
+	
+	if (!isset($winner)) {
+		print "NO MATCH for $song - $artist\n";
+		var_dump($output);
+		exit;
+	}
+
+	//$info = pathinfo($output[0]);
+	$info = pathinfo($winner);
 	if (!count($info) || empty($info['filename'])) {
-		print "Failed to get info about file $output\n";
+		print "Failed to get info about file $winner\n";
 		exit;
 	}
 	$filename = $info['filename'] . "." . $info['extension'];
@@ -75,7 +87,7 @@ foreach (file($argv[1]) as $line) {
 		print "$filename exists, skipping...\n";
 	} else {
 		print "copying $filename to $dest/$filename...\n";
-		copy("$output", "$dest/$filename");
+		copy("$winner", "$dest/$filename");
 	}
 	//print "($filename) - $output\n";
 	//print $line . "\n";
