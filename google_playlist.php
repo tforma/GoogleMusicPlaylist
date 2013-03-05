@@ -47,7 +47,7 @@ foreach (file($argv[1]) as $line) {
 	exec("find $src -name \"*$song*\"", $output);
 	if (count($output) == 0) {
 		$output = exec("find $src -name \"*$song2*\"");
-		if (strlen($output) == 0) {
+		if (count($output) == 0) {
 			print "NO MATCH for $song - $artist!\n";
 			exit;
 		}
@@ -84,9 +84,10 @@ foreach (file($argv[1]) as $line) {
 	}
 	$filename = $info['filename'] . "." . $info['extension'];
 	if (is_file("$dest/$filename")) {
-		print "$filename exists, skipping...\n";
+		#print "$filename exists, skipping...\n";
+		print ".";
 	} else {
-		print "copying $filename to $dest/$filename...\n";
+		print "\ncopying $filename to $dest/$filename...\n";
 		copy("$winner", "$dest/$filename");
 	}
 	//print "($filename) - $output\n";
